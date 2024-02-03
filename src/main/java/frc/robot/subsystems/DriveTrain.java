@@ -45,7 +45,7 @@ public class DriveTrain extends SubsystemBase {
   private final Encoder m_leftEncoder = new Encoder(Constants.DeviceIds.L_Encoder_A, Constants.DeviceIds.L_Encoder_B); // Left Side
  
   //Gyro
-  Pigeon2 m_gryo = new Pigeon2(0);
+  Pigeon2 m_gryo = new Pigeon2(Constants.DeviceIds.GYRO);
 
   //Odometry
   private final DifferentialDriveOdometry m_Odometry;
@@ -103,12 +103,15 @@ public class DriveTrain extends SubsystemBase {
 
   m_EncoderTab.addDouble("Right Encoder Count", () -> m_rightEncoder.getDistance());
   m_EncoderTab.addDouble("Left Encoder Count", () -> m_leftEncoder.getDistance());
+  m_EncoderTab.addDouble("Gyro Heading", () -> m_gryo.getAngle());
 
   rightFrontDrive = new TalonFX(Constants.DeviceIds.R_DRIVE1_ID);
   rightBackDrive = new TalonFX(Constants.DeviceIds.R_DRIVE2_ID);
   leftFrontDrive = new TalonFX(Constants.DeviceIds.L_DRIVE1_ID);
   leftBackDrive = new TalonFX(Constants.DeviceIds.L_DRIVE2_ID);
 
+
+//enables safety feature 
   rightFrontDrive.setSafetyEnabled(false);
   leftFrontDrive.setSafetyEnabled(false);
   rightBackDrive.setSafetyEnabled(false);
@@ -116,15 +119,22 @@ public class DriveTrain extends SubsystemBase {
 
   leftBackDrive.setControl(new DifferentialFollower(Constants.DeviceIds.L_DRIVE1_ID, false));
   rightBackDrive.setControl(new DifferentialFollower(Constants.DeviceIds.R_DRIVE1_ID, false));
+
+  //sets left inverted
   rightFrontDrive.setInverted(true);
   leftFrontDrive.setInverted(false);
   
+  //converts 
   m_leftEncoder.setDistancePerPulse(Constants.DrivetrainConstants.kLinearDistanceConversionFactor);
   m_rightEncoder.setDistancePerPulse(-Constants.DrivetrainConstants.kLinearDistanceConversionFactor);
 
-  resetEncoders();
 
-  m_Odometry = new DifferentialDriveOdometry(m_gryo.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+  //resets gyro and encoders
+  resetEncoders();
+  m_gryo.reset();
+
+  m_Odometry = new DifferentialDriveOdometry(m_gryo.getRotation2d(),
+   m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
   }
 
   public void drive(double rightSpeed, double leftspeed){
@@ -138,6 +148,7 @@ public class DriveTrain extends SubsystemBase {
     m_leftEncoder.reset();
     m_rightEncoder.reset();
   }
+  
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.quasistatic(direction);
