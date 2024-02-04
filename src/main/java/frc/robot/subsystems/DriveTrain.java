@@ -95,15 +95,19 @@ public class DriveTrain extends SubsystemBase {
               this));
 
   
-  private final ShuffleboardTab m_EncoderTab;
+  private final ShuffleboardTab m_DataTab;
 
   public DriveTrain() {
 
-  m_EncoderTab = Shuffleboard.getTab("Encoders");
+  m_DataTab = Shuffleboard.getTab("Device Data Tab");
 
-  m_EncoderTab.addDouble("Right Encoder Count", () -> m_rightEncoder.getDistance());
-  m_EncoderTab.addDouble("Left Encoder Count", () -> m_leftEncoder.getDistance());
-  m_EncoderTab.addDouble("Gyro Heading", () -> m_gryo.getAngle());
+  m_DataTab.addDouble("Right Encoder Distance", () -> m_rightEncoder.getDistance());
+  m_DataTab.addDouble("Right Encoder Rate", () -> m_rightEncoder.getRate());
+
+  m_DataTab.addDouble("Left Encoder Distance", () -> m_leftEncoder.getDistance());
+  m_DataTab.addDouble("Left Encoder Rate", () -> m_leftEncoder.getRate());
+
+  m_DataTab.addDouble("Gyro Heading", () -> m_gryo.getAngle());
 
   rightFrontDrive = new TalonFX(Constants.DeviceIds.R_DRIVE1_ID);
   rightBackDrive = new TalonFX(Constants.DeviceIds.R_DRIVE2_ID);
